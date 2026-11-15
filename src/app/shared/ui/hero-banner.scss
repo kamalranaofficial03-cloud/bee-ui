@@ -1,0 +1,322 @@
+:host {
+  display: block;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  min-height: 28rem;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  margin-top: 1.25rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse at 75% 55%, rgb(77 157 151 / 32%), transparent 31%),
+    linear-gradient(115deg, #0d3449 0%, #124b5c 55%, #17666b 100%);
+  color: white;
+}
+
+.hero-copy {
+  z-index: 1;
+  max-width: 38rem;
+  padding: clamp(2rem, 6vw, 5rem);
+  padding-bottom: 5rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 1rem;
+  color: #a9ddd1;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero-eyebrow span {
+  margin-right: 0.35rem;
+  color: #f5ce70;
+  font-size: 1rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 5.2vw, 4.4rem);
+  font-weight: 750;
+  letter-spacing: -0.075em;
+  line-height: 0.99;
+}
+
+.hero h1 span {
+  color: #c1e8dc;
+}
+
+.hero-description {
+  max-width: 25rem;
+  margin: 1.5rem 0 1.75rem;
+  color: rgb(255 255 255 / 78%);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.hero-actions a[matButton] {
+  min-height: 3rem;
+  padding-inline: 1.25rem;
+  border-radius: 999px;
+  background: #f2c765;
+  color: #173a47;
+  font-weight: 800;
+}
+
+.hero-actions a[matButton] span {
+  margin-left: 0.4rem;
+  font-size: 1.15rem;
+}
+
+.text-link {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration-color: rgb(255 255 255 / 50%);
+  text-underline-offset: 0.25rem;
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin-top: 2.2rem;
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.74rem;
+}
+
+.hero-trust b {
+  margin-right: 0.4rem;
+  color: #f2c765;
+  font-size: 0.67rem;
+}
+
+.hero-art {
+  position: relative;
+  min-height: 25rem;
+  margin: 1.5rem 2rem 3rem 0;
+}
+
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgb(255 255 255 / 19%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+}
+
+.orbit-one {
+  width: 21rem;
+  height: 15rem;
+}
+
+.orbit-two {
+  width: 25rem;
+  height: 19rem;
+  transform: translate(-50%, -50%) rotate(28deg);
+}
+
+.hero-product {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 2rem;
+  background: linear-gradient(145deg, #fff, #dce9e8);
+  box-shadow: 0 1.5rem 4rem rgb(0 20 31 / 30%);
+}
+
+.hero-product span {
+  filter: drop-shadow(0 0.7rem 0.4rem rgb(26 39 48 / 15%));
+}
+
+.hero-product-main {
+  top: 50%;
+  left: 50%;
+  width: 14rem;
+  height: 14rem;
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+.hero-product-main span {
+  font-size: 6rem;
+}
+
+.hero-product-small {
+  top: 10%;
+  right: 7%;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1.4rem;
+  background: linear-gradient(145deg, #f9e6d3, #fff8ec);
+  transform: rotate(9deg);
+}
+
+.hero-product-small span {
+  font-size: 3.2rem;
+}
+
+.hero-sparkle {
+  position: absolute;
+  z-index: 1;
+  color: #f2c765;
+}
+
+.sparkle-one {
+  top: 13%;
+  left: 13%;
+  font-size: 2rem;
+}
+
+.sparkle-two {
+  right: 7%;
+  bottom: 17%;
+  color: #b6e4d5;
+  font-size: 2.7rem;
+}
+
+.hero-note {
+  position: absolute;
+  right: 1%;
+  bottom: 9%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 12%);
+  color: white;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  backdrop-filter: blur(12px);
+}
+
+.note-mark {
+  color: #f2c765;
+  font-size: 1.4rem;
+}
+
+.hero-note b {
+  font-size: 0.8rem;
+}
+
+.hero-orbit-label {
+  position: absolute;
+  top: 17%;
+  right: 22%;
+  color: rgb(255 255 255 / 53%);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  transform: rotate(12deg);
+}
+
+.hero-bottom {
+  position: absolute;
+  right: 2rem;
+  bottom: 1.15rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgb(255 255 255 / 63%);
+  font-size: 0.68rem;
+}
+
+.hero-bottom-line {
+  width: 3rem;
+  height: 1px;
+  background: rgb(255 255 255 / 35%);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    min-height: 26rem;
+  }
+
+  .hero-art {
+    margin-right: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    margin-top: 0.75rem;
+  }
+
+  .hero-copy {
+    padding: 2.25rem 1.5rem 0.5rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 13vw, 4.4rem);
+  }
+
+  .hero-art {
+    min-height: 17rem;
+    margin: -0.25rem 1rem 3.4rem;
+  }
+
+  .hero-product-main {
+    width: 10.5rem;
+    height: 10.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .hero-product-main span {
+    font-size: 4.5rem;
+  }
+
+  .hero-product-small {
+    top: 7%;
+    right: 11%;
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .hero-product-small span {
+    font-size: 2.4rem;
+  }
+
+  .orbit-one {
+    width: 17rem;
+    height: 12rem;
+  }
+
+  .orbit-two {
+    width: 20rem;
+    height: 15rem;
+  }
+
+  .hero-note {
+    right: 0;
+    bottom: 2%;
+  }
+
+  .hero-bottom {
+    right: 1rem;
+    left: 1rem;
+    font-size: 0.59rem;
+  }
+
+  .hero-trust {
+    gap: 0.7rem;
+    font-size: 0.66rem;
+  }
+}

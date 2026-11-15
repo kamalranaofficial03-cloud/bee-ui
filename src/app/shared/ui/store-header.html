@@ -1,0 +1,51 @@
+<header class="site-header">
+  <div class="header-main page-width">
+    <a class="brand" routerLink="/" aria-label="Bee Market home">
+      <span class="brand-mark" aria-hidden="true">b</span>
+      <span>bee<span class="brand-light">market</span></span>
+    </a>
+
+    <mat-form-field class="search-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Search the store</mat-label>
+      <input
+        matInput
+        type="search"
+        [value]="searchQuery()"
+        (input)="updateSearch($event)"
+        aria-label="Search products"
+      />
+      <span matTextSuffix class="search-hint" aria-hidden="true">⌕</span>
+    </mat-form-field>
+
+    <nav class="header-actions" aria-label="Account and basket">
+      @if (isAuthenticated()) {
+        <a matButton="outlined" routerLink="/account">My account</a>
+      } @else {
+        <app-action-button (pressed)="signInRequested.emit()">
+          {{ isStartingSignIn() ? 'Connecting…' : 'Sign in' }}
+        </app-action-button>
+      }
+      <button matButton="text" class="basket-button" type="button" aria-label="Shopping basket">
+        Basket <span class="basket-count">{{ cartCount() }}</span>
+      </button>
+    </nav>
+  </div>
+
+  <nav class="category-nav" aria-label="Shop categories">
+    <div class="page-width category-nav-inner">
+      <span class="nav-caption">SHOP</span>
+      @for (category of categories(); track category) {
+        <button
+          matButton="text"
+          type="button"
+          [class.active]="selectedCategory() === category"
+          [attr.aria-pressed]="selectedCategory() === category"
+          (click)="categoryChange.emit(category)"
+        >
+          {{ category === 'All' ? 'All finds' : category }}
+        </button>
+      }
+      <span class="delivery-note">Free delivery on orders over $50</span>
+    </div>
+  </nav>
+</header>

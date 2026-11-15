@@ -14,9 +14,11 @@ Once the server is running, open your browser and navigate to `http://localhost:
 
 ## Authentication flow
 
-The app uses the authorization-code flow with PKCE. `/login` starts sign-in, `/callback` validates the OAuth state and exchanges the code, and `/dashboard` is protected by the functional `canActivate` guard. An unauthenticated visit is redirected to login and its internal destination is restored after sign-in.
+The app uses the authorization-code flow with PKCE. `/login` starts sign-in, `/callback` validates the OAuth state and exchanges the code, and `/account` is protected by the functional `canActivate` guard. An unauthenticated visit is redirected to login and its internal destination is restored after sign-in.
 
-Authentication status, loading state, and errors are exposed as Angular signals by `AuthService`. The demo stores tokens in `sessionStorage`; configure the auth server and client settings in `src/app/auth.service.ts` for your environment before deployment.
+The home page is a small example storefront built with Angular Material and the project-owned reusable components in `src/app/shared/ui`. Its category/search/cart state and registration form use Angular signals and Signal Forms. Registration is currently UI-only and does not send or store submitted details.
+
+Authentication status, loading state, and errors are exposed as Angular signals by `AuthService`. The demo stores tokens in `sessionStorage`; configure the auth server and client settings in `src/app/auth.service.ts` for your environment before deployment. The Material theme is defined in `src/styles.scss`.
 
 ## Code scaffolding
 

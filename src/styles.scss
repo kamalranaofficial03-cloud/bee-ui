@@ -1,1 +1,71 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+$storefront-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$orange-palette,
+    ),
+    typography: (
+      plain-family: 'Arial, sans-serif',
+      brand-family: 'Arial, sans-serif',
+      regular-weight: 400,
+      medium-weight: 500,
+      bold-weight: 700,
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+html {
+  color-scheme: light;
+  @include mat.core-theme($storefront-theme);
+  @include mat.button-theme($storefront-theme);
+  @include mat.card-theme($storefront-theme);
+  @include mat.form-field-theme($storefront-theme);
+  @include mat.input-theme($storefront-theme);
+  font-family: Arial, sans-serif;
+  scroll-behavior: smooth;
+}
+
+:root {
+  --store-primary: #126274;
+  --store-ink: #17364a;
+  --store-muted: #687986;
+  --store-canvas: #f5f8fa;
+  --store-border: #e1e9ed;
+  --store-accent: #f2c765;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100vh;
+  margin: 0;
+  background: #fff;
+  color: var(--store-ink);
+}
+
+button,
+a,
+input {
+  font: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

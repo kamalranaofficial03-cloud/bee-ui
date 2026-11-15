@@ -1,0 +1,146 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.product-card {
+  height: 100%;
+  overflow: hidden;
+  border-color: var(--store-border);
+  border-radius: 1.1rem;
+  background: white;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1rem 2rem rgb(18 43 70 / 9%);
+}
+
+.product-art {
+  position: relative;
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  overflow: hidden;
+}
+
+.product-art::after {
+  position: absolute;
+  width: 9rem;
+  height: 9rem;
+  border: 1px solid rgb(255 255 255 / 62%);
+  border-radius: 50%;
+  content: '';
+}
+
+.product-emoji {
+  z-index: 1;
+  font-size: 4.5rem;
+  filter: drop-shadow(0 0.5rem 0.65rem rgb(20 30 40 / 15%));
+  transition: transform 180ms ease;
+}
+
+.product-card:hover .product-emoji {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.product-badge {
+  position: absolute;
+  z-index: 1;
+  top: 0.85rem;
+  left: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+  color: var(--store-ink);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+mat-card-content {
+  padding-top: 1rem;
+}
+
+.product-category {
+  margin: 0 0 0.35rem;
+  color: var(--store-primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h3 {
+  margin: 0;
+  color: var(--store-ink);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.product-description {
+  min-height: 2.8rem;
+  margin: 0.45rem 0;
+  color: var(--store-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.product-price {
+  margin: 0;
+  color: var(--store-ink);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+mat-card-actions {
+  padding: 0 1rem 1rem;
+}
+
+app-action-button {
+  width: 100%;
+}
+
+app-action-button button {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .product-art {
+    min-height: 8.5rem;
+  }
+
+  .product-emoji {
+    font-size: 3.5rem;
+  }
+
+  .product-badge {
+    top: 0.55rem;
+    left: 0.55rem;
+    padding: 0.28rem 0.48rem;
+    font-size: 0.58rem;
+  }
+
+  mat-card-content {
+    padding-inline: 0.75rem;
+  }
+
+  .product-description {
+    min-height: 3.8rem;
+    font-size: 0.76rem;
+  }
+
+  .product-price {
+    font-size: 1rem;
+  }
+
+  mat-card-actions {
+    padding-inline: 0.6rem;
+  }
+
+  app-action-button {
+    font-size: 0.7rem;
+  }
+}

@@ -1,0 +1,145 @@
+:host {
+  display: block;
+  color: var(--store-ink);
+}
+
+.page-width {
+  width: min(100% - 3rem, 76rem);
+  margin-inline: auto;
+}
+
+.auth-alert {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #f4c7c2;
+  border-radius: 0.75rem;
+  background: #fff7f5;
+  color: #8c2824;
+  font-size: 0.9rem;
+}
+
+.popular-section {
+  padding-block: clamp(3.75rem, 7vw, 6rem);
+  scroll-margin-top: 2rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.6rem 0 1.25rem;
+}
+
+.filter-row button {
+  border-color: var(--store-border);
+  border-radius: 999px;
+  color: var(--store-muted);
+  font-size: 0.79rem;
+}
+
+.filter-row button.selected {
+  border-color: var(--store-primary);
+  background: var(--store-primary);
+  color: white;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 16rem;
+  place-content: center;
+  justify-items: center;
+  border: 1px dashed var(--store-border);
+  border-radius: 1rem;
+  color: var(--store-muted);
+  text-align: center;
+}
+
+.empty-state > span {
+  color: var(--store-primary);
+  font-size: 2.5rem;
+}
+
+.empty-state h3 {
+  margin: 0.5rem 0 0;
+  color: var(--store-ink);
+}
+
+.empty-state p {
+  margin: 0.5rem 0 1rem;
+}
+
+.site-footer {
+  background: #0c2e40;
+  color: rgb(255 255 255 / 66%);
+}
+
+.footer-inner {
+  display: flex;
+  min-height: 5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.5rem;
+}
+
+.footer-inner .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: -0.07em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  width: 1.6rem;
+  height: 1.6rem;
+  place-items: center;
+  border-radius: 0.55rem 0.55rem 0.55rem 0.2rem;
+  background: var(--store-primary);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.brand-light {
+  color: #a9ddd1;
+  font-weight: 500;
+}
+
+.footer-inner p,
+.footer-inner > span {
+  margin: 0;
+  font-size: 0.73rem;
+}
+
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page-width {
+    width: min(100% - 1.5rem, 76rem);
+  }
+
+  .product-grid {
+    gap: 0.65rem;
+  }
+
+  .footer-inner {
+    justify-content: center;
+    padding-block: 1.2rem;
+    text-align: center;
+  }
+}

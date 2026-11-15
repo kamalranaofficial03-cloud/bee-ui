@@ -1,0 +1,34 @@
+<section class="categories-section" aria-labelledby="categories-title">
+  <app-section-heading
+    eyebrow="Find your something"
+    title="A good place to start"
+    headingId="categories-title"
+    description="Browse the little upgrades that make a day."
+  />
+  <div class="category-grid">
+    <button type="button" class="category-tile tile-tech" (click)="categorySelected.emit('Tech')">
+      <span class="category-art" aria-hidden="true">⌘</span>
+      <span><b>Everyday tech</b><small>Little things, big help</small></span>
+      <span class="tile-arrow" aria-hidden="true">↗</span>
+    </button>
+    <button type="button" class="category-tile tile-home" (click)="categorySelected.emit('Home')">
+      <span class="category-art" aria-hidden="true">⌂</span>
+      <span><b>Home comforts</b><small>Make room for cozy</small></span>
+      <span class="tile-arrow" aria-hidden="true">↗</span>
+    </button>
+    <button type="button" class="category-tile tile-style" (click)="categorySelected.emit('Style')">
+      <span class="category-art" aria-hidden="true">✳</span>
+      <span><b>Easy style</b><small>Made to go everywhere</small></span>
+      <span class="tile-arrow" aria-hidden="true">↗</span>
+    </button>
+    <button
+      type="button"
+      class="category-tile tile-wellness"
+      (click)="categorySelected.emit('Wellness')"
+    >
+      <span class="category-art" aria-hidden="true">☼</span>
+      <span><b>Feel-good finds</b><small>A moment for yourself</small></span>
+      <span class="tile-arrow" aria-hidden="true">↗</span>
+    </button>
+  </div>
+</section>

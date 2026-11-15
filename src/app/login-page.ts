@@ -14,7 +14,7 @@ export class LoginPage {
 
   protected login(): void {
     this.isStartingLogin.set(true);
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/account';
     void this.auth.startLogin(returnUrl).catch(() => {
       this.isStartingLogin.set(false);
     });

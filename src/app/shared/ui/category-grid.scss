@@ -1,0 +1,129 @@
+:host {
+  display: block;
+}
+
+.categories-section {
+  padding-block: clamp(3.75rem, 7vw, 6rem);
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.75rem;
+}
+
+.category-tile {
+  display: grid;
+  min-height: 7.5rem;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  color: var(--store-ink);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.category-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.7rem 1.5rem rgb(18 43 70 / 8%);
+}
+
+.tile-tech {
+  border-color: #e0edf4;
+  background: #f0f7fa;
+}
+
+.tile-home {
+  border-color: #efe7da;
+  background: #fbf6ed;
+}
+
+.tile-style {
+  border-color: #ebe4f0;
+  background: #f7f2fa;
+}
+
+.tile-wellness {
+  border-color: #dfede4;
+  background: #f0f7f1;
+}
+
+.category-art {
+  display: grid;
+  width: 2.65rem;
+  height: 2.65rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: white;
+  color: var(--store-primary);
+  font-size: 1.5rem;
+}
+
+.category-tile b,
+.category-tile small {
+  display: block;
+}
+
+.category-tile b {
+  font-size: 0.82rem;
+}
+
+.category-tile small {
+  margin-top: 0.3rem;
+  color: var(--store-muted);
+  font-size: 0.7rem;
+}
+
+.tile-arrow {
+  align-self: start;
+  color: var(--store-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .categories-section {
+    padding-block: clamp(3.75rem, 7vw, 6rem);
+  }
+
+  .category-grid {
+    gap: 0.55rem;
+  }
+
+  .category-tile {
+    min-height: 6.2rem;
+    grid-template-columns: auto 1fr;
+    gap: 0.55rem;
+    padding: 0.7rem;
+  }
+
+  .category-art {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.2rem;
+  }
+
+  .category-tile b {
+    font-size: 0.74rem;
+  }
+
+  .category-tile small {
+    font-size: 0.64rem;
+  }
+
+  .tile-arrow {
+    display: none;
+  }
+}

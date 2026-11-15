@@ -1,0 +1,12 @@
+<main class="account-page">
+  <a class="brand" routerLink="/">bee market</a>
+  <section class="account-card">
+    <span class="eyebrow">YOUR ACCOUNT</span>
+    <h1>Welcome back</h1>
+    <p>You’re signed in. Your account and orders will appear here.</p>
+    <div class="account-actions">
+      <a matButton="outlined" routerLink="/">Continue shopping</a>
+      <app-action-button (pressed)="logout()">Sign out</app-action-button>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,75 @@
+<app-store-header
+  [categories]="categories"
+  [selectedCategory]="selectedCategory()"
+  [searchQuery]="searchQuery()"
+  [cartCount]="cartCount()"
+  [isAuthenticated]="isAuthenticated()"
+  [isStartingSignIn]="isStartingSignIn()"
+  (queryChange)="updateSearch($event)"
+  (categoryChange)="selectCategory($event)"
+  (signInRequested)="beginSignIn()"
+/>
+
+<main>
+  @if (authError(); as error) {
+    <div class="page-width auth-alert" role="alert">{{ error }}</div>
+  }
+
+  <app-hero-banner class="page-width" />
+
+  <app-category-grid class="page-width" (categorySelected)="selectCategory($event)" />
+
+  <section id="popular" class="popular-section page-width" aria-labelledby="popular-title">
+    <app-section-heading
+      eyebrow="The bee market edit"
+      title="Good things, picked for you"
+      headingId="popular-title"
+      description="A few useful, lovely things we think you’ll enjoy."
+    />
+    <div class="filter-row" aria-label="Filter products by category">
+      @for (category of categories; track category) {
+        <button
+          matButton="outlined"
+          type="button"
+          [class.selected]="selectedCategory() === category"
+          [attr.aria-pressed]="selectedCategory() === category"
+          (click)="selectCategory(category)"
+        >
+          {{ category === 'All' ? 'Everything' : category }}
+        </button>
+      }
+    </div>
+    @if (visibleProducts().length > 0) {
+      <div class="product-grid">
+        @for (product of visibleProducts(); track product.id) {
+          <app-product-card [product]="product" (addToBasket)="addToBasket($event)" />
+        }
+      </div>
+    } @else {
+      <div class="empty-state" role="status">
+        <span aria-hidden="true">⌕</span>
+        <h3>No finds just yet</h3>
+        <p>Try a different search or category.</p>
+        <app-action-button
+          appearance="outlined"
+          (pressed)="searchQuery.set(''); selectCategory('All')"
+        >
+          Clear filters
+        </app-action-button>
+      </div>
+    }
+  </section>
+
+  <app-registration-section id="join" (signInRequested)="beginSignIn()" />
+</main>
+
+<footer class="site-footer">
+  <div class="page-width footer-inner">
+    <a class="brand" routerLink="/">
+      <span class="brand-mark" aria-hidden="true">b</span>
+      <span>bee<span class="brand-light">market</span></span>
+    </a>
+    <p>Thoughtful picks for everyday living.</p>
+    <span>© 2026 bee market</span>
+  </div>
+</footer>

@@ -1,13 +1,21 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth.guard';
-import { AuthCallbackPage } from './auth-callback-page';
-import { DashboardPage } from './dashboard-page';
-import { LoginPage } from './login-page';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-  { path: 'login', component: LoginPage },
-  { path: 'callback', component: AuthCallbackPage },
-  { path: 'dashboard', component: DashboardPage, canActivate: [authGuard] },
-  { path: '**', redirectTo: 'dashboard' },
+  {
+    path: '',
+    loadComponent: () => import('./bee-landing-page').then((page) => page.BeeLandingPage),
+  },
+  { path: 'login', loadComponent: () => import('./login-page').then((page) => page.LoginPage) },
+  {
+    path: 'callback',
+    loadComponent: () => import('./auth-callback-page').then((page) => page.AuthCallbackPage),
+  },
+  {
+    path: 'account',
+    canActivate: [authGuard],
+    loadComponent: () => import('./account-page').then((page) => page.AccountPage),
+  },
+  { path: 'dashboard', pathMatch: 'full', redirectTo: 'account' },
+  { path: '**', redirectTo: '' },
 ];

@@ -108,7 +108,7 @@ export class AuthService {
     }
   }
 
-  async startLogin(returnUrl = '/dashboard'): Promise<void> {
+  async startLogin(returnUrl = '/account'): Promise<void> {
     this.error.set(null);
     try {
       const verifier = this.generateCodeVerifier();
@@ -198,7 +198,7 @@ export class AuthService {
   consumeReturnUrl(): string {
     const returnUrl = sessionStorage.getItem('auth_return_url');
     sessionStorage.removeItem('auth_return_url');
-    return this.normalizeReturnUrl(returnUrl ?? '/dashboard');
+    return this.normalizeReturnUrl(returnUrl ?? '/account');
   }
 
   logout(): boolean {
@@ -279,12 +279,12 @@ export class AuthService {
 
   private normalizeReturnUrl(returnUrl: string): string {
     if (!returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
-      return '/dashboard';
+      return '/account';
     }
 
     const url = new URL(returnUrl, window.location.origin);
     return url.origin === window.location.origin
       ? `${url.pathname}${url.search}${url.hash}`
-      : '/dashboard';
+      : '/account';
   }
 }

@@ -17,8 +17,8 @@ describe('authGuard', () => {
 
   it('redirects unauthenticated users to login and preserves their destination', async () => {
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dashboard', LoginPage);
+    await harness.navigateByUrl('/account', LoginPage);
 
-    expect(TestBed.inject(Router).url).toBe('/login?returnUrl=%2Fdashboard');
+    expect(TestBed.inject(Router).url).toBe('/login?returnUrl=%2Faccount');
   });
 });

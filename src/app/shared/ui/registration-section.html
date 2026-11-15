@@ -1,0 +1,91 @@
+<section class="join-section">
+  <div class="join-inner">
+    <div class="join-copy">
+      <p class="join-eyebrow">Good things come around</p>
+      <h2>Make room for<br />more good finds.</h2>
+      <p>
+        Create an account to keep your favorites close and make your next visit feel like yours.
+      </p>
+      <ul class="join-benefits">
+        <li><span aria-hidden="true">✓</span> A home for your favorite finds</li>
+        <li><span aria-hidden="true">✓</span> A simpler sign-in next time</li>
+        <li><span aria-hidden="true">✓</span> One place for your orders</li>
+      </ul>
+      <div class="signin-prompt">
+        <span>Already have an account?</span>
+        <app-action-button appearance="outlined" (pressed)="signInRequested.emit()">
+          Sign in securely
+        </app-action-button>
+      </div>
+    </div>
+
+    <mat-card appearance="outlined" class="registration-card">
+      <div class="form-heading">
+        <span class="form-step">01 / JOIN THE GOOD SIDE</span>
+        <h3>Create your account</h3>
+        <p>It only takes a moment.</p>
+      </div>
+      <form [formRoot]="registrationForm">
+        <div class="form-name-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>First name</mat-label>
+            <input matInput autocomplete="given-name" [formField]="registrationForm.firstName" />
+            @if (registrationForm.firstName().touched() && registrationForm.firstName().invalid()) {
+              <mat-error>{{ registrationForm.firstName().errors()[0]?.message }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Last name</mat-label>
+            <input matInput autocomplete="family-name" [formField]="registrationForm.lastName" />
+            @if (registrationForm.lastName().touched() && registrationForm.lastName().invalid()) {
+              <mat-error>{{ registrationForm.lastName().errors()[0]?.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Email address</mat-label>
+          <input matInput type="email" autocomplete="email" [formField]="registrationForm.email" />
+          @if (registrationForm.email().touched() && registrationForm.email().invalid()) {
+            <mat-error>{{ registrationForm.email().errors()[0]?.message }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="registrationForm.password"
+          />
+          @if (registrationForm.password().touched() && registrationForm.password().invalid()) {
+            <mat-error>{{ registrationForm.password().errors()[0]?.message }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Confirm password</mat-label>
+          <input
+            matInput
+            type="password"
+            autocomplete="new-password"
+            [formField]="registrationForm.confirmPassword"
+          />
+          @if (
+            registrationForm.confirmPassword().touched() &&
+            registrationForm.confirmPassword().invalid()
+          ) {
+            <mat-error>{{ registrationForm.confirmPassword().errors()[0]?.message }}</mat-error>
+          }
+        </mat-form-field>
+        <app-action-button type="submit" [disabled]="registrationForm().submitting()">
+          Create account
+        </app-action-button>
+        <p class="form-disclaimer">
+          Demo form only. Your details are not sent or stored; account creation needs a backend.
+        </p>
+        @if (registrationNotice(); as notice) {
+          <p class="registration-notice" role="status">{{ notice }}</p>
+        }
+      </form>
+    </mat-card>
+  </div>
+</section>

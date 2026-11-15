@@ -1,0 +1,17 @@
+<mat-card appearance="outlined" class="product-card">
+  <div class="product-art" [style.background]="product().background" aria-hidden="true">
+    <span class="product-emoji">{{ product().art }}</span>
+    <span class="product-badge">{{ product().badge }}</span>
+  </div>
+  <mat-card-content>
+    <p class="product-category">{{ product().category }}</p>
+    <h3>{{ product().name }}</h3>
+    <p class="product-description">{{ product().description }}</p>
+    <p class="product-price">{{ product().price }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-action-button appearance="tonal" (pressed)="addToBasket.emit(product())">
+      Add to basket
+    </app-action-button>
+  </mat-card-actions>
+</mat-card>
