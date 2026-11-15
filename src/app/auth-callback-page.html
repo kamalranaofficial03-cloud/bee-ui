@@ -1,0 +1,7 @@
+<main>
+  @if (isLoading()) {
+    <p role="status">Completing sign-in…</p>
+  } @else if (authError(); as error) {
+    <p role="alert">{{ error }}</p>
+  }
+</main>

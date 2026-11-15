@@ -1,0 +1,10 @@
+<main>
+  <h1>Sign in</h1>
+  <p>Sign in with your account to continue.</p>
+  @if (authError(); as error) {
+    <p role="alert">{{ error }}</p>
+  }
+  <button type="button" (click)="login()" [disabled]="isStartingLogin()">
+    {{ isStartingLogin() ? 'Redirecting…' : 'Login with OAuth2' }}
+  </button>
+</main>

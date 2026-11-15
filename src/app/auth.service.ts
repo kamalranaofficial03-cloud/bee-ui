@@ -1,217 +1,290 @@
-import { Injectable } from "@angular/core";
+import { computed, Injectable, signal } from '@angular/core';
 
-@Injectable({providedIn: 'root'})
+interface TokenResponse {
+  access_token: string;
+  id_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-    AUTH_SERVER = 'http://localhost:9000';
-    // API calls go through the nginx reverse proxy (same origin).
-    // nginx forwards /api/* and /actuator/* to resource-server.
-    // When resource-server is upgraded to HTTPS+mTLS, only nginx.conf needs updating.
-    RESOURCE_SERVER = '';
-    OPA_SERVER = 'http://localhost:8181';
-    CLIENT_ID = 'frontend-client';
-    REDIRECT_URI = new URL('/callback', window.location.origin).href;
-    SCOPES = 'openid profile email resource:read';
-    TOKEN_KEYS = ['access_token', 'id_token', 'refresh_token', 'expires_in', 'token_expiry_ts'];
+  private readonly authServer = 'http://localhost:9000';
+  private readonly clientId = 'frontend-client';
+  private readonly redirectUri = new URL('/callback', window.location.origin).href;
+  private readonly scopes = 'openid profile email resource:read';
+  private readonly tokenKeys = [
+    'access_token',
+    'id_token',
+    'refresh_token',
+    'expires_in',
+    'token_expiry_ts',
+    'token_issued_ts',
+  ];
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  PKCE HELPERS
-    // ═══════════════════════════════════════════════════════════════════
+  private readonly accessToken = signal<string | null>(this.readStoredAccessToken());
+  private readonly tokenExpiresAt = signal<number | null>(this.readStoredExpiry());
+  private readonly loading = signal(false);
+  private readonly error = signal<string | null>(null);
+  private expirationTimer: ReturnType<typeof setTimeout> | undefined;
 
-    generateCodeVerifier() {
-        const array = new Uint8Array(64);
-        crypto.getRandomValues(array);
-        return this.base64urlEncode(array);
+  readonly isAuthenticated = computed(() => {
+    const expiresAt = this.tokenExpiresAt();
+    return this.accessToken() !== null && expiresAt !== null && expiresAt > Date.now();
+  });
+  readonly isLoading = this.loading.asReadonly();
+  readonly authError = this.error.asReadonly();
+
+  constructor() {
+    const expiresAt = this.tokenExpiresAt();
+    if (this.isAuthenticated() && expiresAt !== null) {
+      this.scheduleExpiration(expiresAt);
+    } else {
+      this.clearTokens();
+    }
+  }
+
+  isSessionValid(): boolean {
+    const expiresAt = this.tokenExpiresAt();
+    if (expiresAt === null || expiresAt <= Date.now()) {
+      this.clearTokens();
+      return false;
+    }
+    return this.accessToken() !== null;
+  }
+
+  generateCodeVerifier(): string {
+    return this.base64urlEncode(crypto.getRandomValues(new Uint8Array(64)));
+  }
+
+  async generateCodeChallenge(verifier: string): Promise<string> {
+    const data = new TextEncoder().encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return this.base64urlEncode(new Uint8Array(digest));
+  }
+
+  base64urlEncode(buffer: ArrayBuffer | Uint8Array): string {
+    const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+    let binary = '';
+    for (const byte of bytes) {
+      binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  }
+
+  base64urlDecode(value: string): string {
+    let base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    return decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((character) => `%${character.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join(''),
+    );
+  }
+
+  decodeJwt(token: string): {
+    header: unknown;
+    payload: unknown;
+    signature: string;
+    raw: string[];
+  } | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      return {
+        header: JSON.parse(this.base64urlDecode(parts[0])),
+        payload: JSON.parse(this.base64urlDecode(parts[1])),
+        signature: parts[2],
+        raw: parts,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async startLogin(returnUrl = '/dashboard'): Promise<void> {
+    this.error.set(null);
+    try {
+      const verifier = this.generateCodeVerifier();
+      const challenge = await this.generateCodeChallenge(verifier);
+      const state = this.base64urlEncode(crypto.getRandomValues(new Uint8Array(16)));
+
+      sessionStorage.setItem('pkce_verifier', verifier);
+      sessionStorage.setItem('oauth_state', state);
+      sessionStorage.setItem('auth_return_url', this.normalizeReturnUrl(returnUrl));
+
+      const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: this.clientId,
+        redirect_uri: this.redirectUri,
+        scope: this.scopes,
+        state,
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
+      });
+
+      window.location.assign(`${this.authServer}/oauth2/authorize?${params}`);
+    } catch (error) {
+      console.error('[OAuth2] Unable to start sign-in:', error);
+      this.error.set('Unable to start sign-in. Please try again.');
+      throw error;
+    }
+  }
+
+  async handleCallback(params: URLSearchParams): Promise<boolean> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      if (params.has('error')) {
+        this.clearLoginTransaction();
+        this.error.set('Sign-in was cancelled or could not be completed.');
+        return false;
+      }
+
+      const code = params.get('code');
+      const state = params.get('state');
+      const savedState = sessionStorage.getItem('oauth_state');
+      const codeVerifier = sessionStorage.getItem('pkce_verifier');
+      this.clearLoginTransaction();
+
+      if (!code || !state || !savedState || state !== savedState || !codeVerifier) {
+        this.error.set('The sign-in response could not be verified. Please try again.');
+        return false;
+      }
+
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: this.clientId,
+        redirect_uri: this.redirectUri,
+        code,
+        code_verifier: codeVerifier,
+      });
+
+      const response = await fetch(`${this.authServer}/oauth2/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+
+      if (!response.ok) {
+        this.error.set('Sign-in failed while exchanging the authorization code. Please try again.');
+        return false;
+      }
+
+      const tokens = (await response.json()) as TokenResponse;
+      if (!tokens.access_token || typeof tokens.access_token !== 'string') {
+        this.error.set('The sign-in server returned an invalid token response.');
+        return false;
+      }
+
+      this.saveTokens(tokens);
+      return true;
+    } catch (error) {
+      console.error('[OAuth2] Sign-in callback failed:', error);
+      this.error.set('Unable to complete sign-in. Please try again.');
+      return false;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  consumeReturnUrl(): string {
+    const returnUrl = sessionStorage.getItem('auth_return_url');
+    sessionStorage.removeItem('auth_return_url');
+    return this.normalizeReturnUrl(returnUrl ?? '/dashboard');
+  }
+
+  logout(): boolean {
+    const token = this.accessToken();
+    const idToken = sessionStorage.getItem('id_token');
+    const hasValidSession = this.isSessionValid();
+    this.clearTokens();
+
+    if (hasValidSession && token && idToken) {
+      const params = new URLSearchParams({
+        id_token_hint: idToken,
+        post_logout_redirect_uri: window.location.origin,
+      });
+      window.location.assign(`${this.authServer}/connect/logout?${params}`);
+      return true;
+    }
+    return false;
+  }
+
+  private saveTokens(tokens: TokenResponse): void {
+    const expiresIn = Number(tokens.expires_in ?? 3600);
+    if (!Number.isFinite(expiresIn) || expiresIn <= 0) {
+      throw new Error('The sign-in server returned an invalid token expiry.');
     }
 
-    async generateCodeChallenge(verifier: any) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(verifier);
-        const digest = await crypto.subtle.digest('SHA-256', data);
-        return this.base64urlEncode(new Uint8Array(digest));
+    const expiresAt = Date.now() + expiresIn * 1000;
+    sessionStorage.setItem('access_token', tokens.access_token);
+    sessionStorage.setItem('id_token', tokens.id_token ?? '');
+    sessionStorage.setItem('refresh_token', tokens.refresh_token ?? '');
+    sessionStorage.setItem('expires_in', String(expiresIn));
+    sessionStorage.setItem('token_expiry_ts', String(expiresAt));
+    sessionStorage.setItem('token_issued_ts', String(Date.now()));
+    this.accessToken.set(tokens.access_token);
+    this.tokenExpiresAt.set(expiresAt);
+    this.scheduleExpiration(expiresAt);
+  }
+
+  private clearTokens(): void {
+    this.tokenKeys.forEach((key) => sessionStorage.removeItem(key));
+    this.accessToken.set(null);
+    this.tokenExpiresAt.set(null);
+    if (this.expirationTimer !== undefined) {
+      clearTimeout(this.expirationTimer);
+      this.expirationTimer = undefined;
     }
+  }
 
-    base64urlEncode(buffer: any) {
-        let str = '';
-        const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-        for (let i = 0; i < bytes.byteLength; i++) {
-            str += String.fromCharCode(bytes[i]);
-        }
-        return btoa(str)
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
+  private clearLoginTransaction(): void {
+    sessionStorage.removeItem('pkce_verifier');
+    sessionStorage.removeItem('oauth_state');
+  }
+
+  private readStoredAccessToken(): string | null {
+    return typeof sessionStorage === 'undefined' ? null : sessionStorage.getItem('access_token');
+  }
+
+  private readStoredExpiry(): number | null {
+    if (typeof sessionStorage === 'undefined') {
+      return null;
     }
+    const expiry = Number(sessionStorage.getItem('token_expiry_ts'));
+    return Number.isFinite(expiry) && expiry > 0 ? expiry : null;
+  }
 
-    base64urlDecode(str: any) {
-        str = str.replace(/-/g, '+').replace(/_/g, '/');
-        while (str.length % 4) str += '=';
-        try {
-            return decodeURIComponent(
-                atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
-            );
-        } catch {
-            return atob(str);
-        }
+  private scheduleExpiration(expiresAt: number): void {
+    if (this.expirationTimer !== undefined) {
+      clearTimeout(this.expirationTimer);
     }
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  JWT HELPERS
-    // ═══════════════════════════════════════════════════════════════════
-
-    decodeJwt(token: any) {
-        try {
-            const parts = token.split('.');
-            if (parts.length !== 3) return null;
-            return {
-                header: JSON.parse(this.base64urlDecode(parts[0])),
-                payload: JSON.parse(this.base64urlDecode(parts[1])),
-                signature: parts[2],
-                raw: parts
-            };
-        } catch {
-            return null;
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  TOKEN STORAGE (sessionStorage — demo only)
-    // ═══════════════════════════════════════════════════════════════════
-
-    saveTokens(data: any) {
-        const expiryTs = Date.now() + (data.expires_in || 3600) * 1000;
-        sessionStorage.setItem('access_token', data.access_token || '');
-        sessionStorage.setItem('id_token', data.id_token || '');
-        sessionStorage.setItem('refresh_token', data.refresh_token || '');
-        sessionStorage.setItem('expires_in', String(data.expires_in || 3600));
-        sessionStorage.setItem('token_expiry_ts', String(expiryTs));
-        sessionStorage.setItem('token_issued_ts', String(Date.now()));
-    }
-
-    clearTokens() {
-        this.TOKEN_KEYS.forEach(k => sessionStorage.removeItem(k));
-        sessionStorage.removeItem('token_issued_ts');
-    }
-
-    getAccessToken() {
-        return sessionStorage.getItem('access_token') || null;
-    }
-
-    isAuthenticated() {
-        const token = this.getAccessToken();
-        if (!token) return false;
-        const expiry = parseInt(sessionStorage.getItem('token_expiry_ts') || '0', 10);
-        return expiry > Date.now();
-    }
-
-
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  OAUTH2 PKCE FLOW
-    // ═══════════════════════════════════════════════════════════════════
-
-    async startLogin() {
-        const verifier = this.generateCodeVerifier();
-        const challenge = await this.generateCodeChallenge(verifier);
-        const state = this.base64urlEncode(crypto.getRandomValues(new Uint8Array(16)));
-
-        sessionStorage.setItem('pkce_verifier', verifier);
-        sessionStorage.setItem('oauth_state', state);
-
-        const params = new URLSearchParams({
-            response_type: 'code',
-            client_id: this.CLIENT_ID,
-            redirect_uri: this.REDIRECT_URI,
-            scope: this.SCOPES,
-            state: state,
-            code_challenge: challenge,
-            code_challenge_method: 'S256',
-        });
-        console.log("Redirecting to Auth Server");
-        window.location.href = `${this.AUTH_SERVER}/oauth2/authorize?${params}`;
-    }
-
-    async handleCallback() {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const state = params.get('state');
-        const error = params.get('error');
-
-        if (error) {
-            sessionStorage.removeItem('pkce_verifier');
-            sessionStorage.removeItem('oauth_state');
-            window.location.replace('/');
-            return;
-        }
-
-        if (!code) {
-            window.location.replace('/');
-            return;
-        }
-
-        const savedState = sessionStorage.getItem('oauth_state');
-        const codeVerifier = sessionStorage.getItem('pkce_verifier');
-
-        sessionStorage.removeItem('oauth_state');
-        sessionStorage.removeItem('pkce_verifier');
-
-        if (savedState && state !== savedState) {
-            console.error('[OAuth2] State mismatch — possible CSRF attack.');
-            window.location.replace('/');
-            return;
-        }
-
-        try {
-            console.log("Exchanging code for tokens...")
-            // Generate DPoP proof for token endpoint
-            const tokenUrl = `${this.AUTH_SERVER}/oauth2/token`;
-            // const dpopProof = await this.generateDPoPProof('POST', tokenUrl);
-
-            const body = new URLSearchParams({
-                grant_type: 'authorization_code',
-                client_id: this.CLIENT_ID,
-                redirect_uri: this.REDIRECT_URI,
-                code: code,
-                code_verifier: codeVerifier || '',
-            });
-
-            const resp = await fetch(tokenUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    // 'DPoP': dpopProof
-                },
-                body: body.toString(),
-            });
-
-            if (!resp.ok) {
-                const text = await resp.text();
-                console.error('[OAuth2] Token exchange failed:', text);
-                window.location.replace('/');
-                return;
-            }
-
-            const data = await resp.json();
-            this.saveTokens(data);
-            console.log(`Tokens received · ${new Date().toLocaleTimeString()}`);
-            window.location.replace('/');
-        } catch (err) {
-            console.error('[OAuth2] Token exchange error:', err);
-            window.location.replace('/');
-        }
-    }
-
-    logout() {
-        const token = this.getAccessToken();
-        const idToken = sessionStorage.getItem('id_token');
+    const delay = Math.min(Math.max(expiresAt - Date.now(), 0), 2_147_483_647);
+    this.expirationTimer = setTimeout(() => {
+      if (expiresAt <= Date.now()) {
         this.clearTokens();
+      } else {
+        this.scheduleExpiration(expiresAt);
+      }
+    }, delay);
+  }
 
-        if (token && idToken) {
-            const params = new URLSearchParams({
-                id_token_hint: idToken,
-                post_logout_redirect_uri: window.location.origin,
-            });
-            window.location.href = `${this.AUTH_SERVER}/connect/logout?${params}`;
-        }
+  private normalizeReturnUrl(returnUrl: string): string {
+    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      return '/dashboard';
     }
 
+    const url = new URL(returnUrl, window.location.origin);
+    return url.origin === window.location.origin
+      ? `${url.pathname}${url.search}${url.hash}`
+      : '/dashboard';
+  }
 }

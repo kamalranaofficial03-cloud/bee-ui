@@ -12,6 +12,12 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Authentication flow
+
+The app uses the authorization-code flow with PKCE. `/login` starts sign-in, `/callback` validates the OAuth state and exchanges the code, and `/dashboard` is protected by the functional `canActivate` guard. An unauthenticated visit is redirected to login and its internal destination is restored after sign-in.
+
+Authentication status, loading state, and errors are exposed as Angular signals by `AuthService`. The demo stores tokens in `sessionStorage`; configure the auth server and client settings in `src/app/auth.service.ts` for your environment before deployment.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
