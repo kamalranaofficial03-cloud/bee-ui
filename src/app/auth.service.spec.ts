@@ -38,6 +38,17 @@ describe('AuthService', () => {
     expect(sessionStorage.getItem('access_token')).toBeNull();
   });
 
+  it('exposes the subject claim and valid access token for account requests', () => {
+    const username = 'account@example.test';
+    const token = `${btoa('{"alg":"none"}')}.${btoa(JSON.stringify({ sub: username }))}.signature`;
+    sessionStorage.setItem('access_token', token);
+    sessionStorage.setItem('token_expiry_ts', String(Date.now() + 60_000));
+    const auth = TestBed.inject(AuthService);
+
+    expect(auth.username()).toBe(username);
+    expect(auth.getValidAccessToken()).toBe(token);
+  });
+
   it('updates the authentication signal when a callback exchanges tokens', async () => {
     sessionStorage.setItem('oauth_state', 'expected-state');
     sessionStorage.setItem('pkce_verifier', 'verifier');

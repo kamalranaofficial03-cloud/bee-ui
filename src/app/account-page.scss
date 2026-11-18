@@ -41,6 +41,46 @@ p {
   line-height: 1.65;
 }
 
+.account-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-block: 2rem;
+  color: var(--store-muted);
+}
+
+.account-message {
+  margin-block: 1.5rem;
+}
+
+.account-message h1 {
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+.account-details {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0 0;
+}
+
+.account-details > div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.6fr) 1fr;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--store-border);
+}
+
+.account-details dt {
+  color: var(--store-muted);
+  font-weight: 600;
+}
+
+.account-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .account-actions {
   display: flex;
   flex-wrap: wrap;

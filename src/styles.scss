@@ -27,6 +27,7 @@ html {
   @include mat.card-theme($storefront-theme);
   @include mat.form-field-theme($storefront-theme);
   @include mat.input-theme($storefront-theme);
+  @include mat.progress-spinner-theme($storefront-theme);
   font-family: Arial, sans-serif;
   scroll-behavior: smooth;
 }

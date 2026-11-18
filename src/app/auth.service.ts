@@ -12,7 +12,7 @@ export class AuthService {
   private readonly authServer = 'http://localhost:9000';
   private readonly clientId = 'frontend-client';
   private readonly redirectUri = new URL('/callback', window.location.origin).href;
-  private readonly scopes = 'openid profile email resource:read';
+  private readonly scopes = 'profile';
   private readonly tokenKeys = [
     'access_token',
     'id_token',
@@ -31,6 +31,20 @@ export class AuthService {
   readonly isAuthenticated = computed(() => {
     const expiresAt = this.tokenExpiresAt();
     return this.accessToken() !== null && expiresAt !== null && expiresAt > Date.now();
+  });
+  readonly username = computed(() => {
+    const token = this.accessToken();
+    if (!token || !this.isAuthenticated()) {
+      return null;
+    }
+
+    const payload = this.decodeJwt(token)?.payload;
+    if (payload === null || typeof payload !== 'object' || !('sub' in payload)) {
+      return null;
+    }
+
+    const subject = payload.sub;
+    return typeof subject === 'string' && subject.trim().length > 0 ? subject : null;
   });
   readonly isLoading = this.loading.asReadonly();
   readonly authError = this.error.asReadonly();
@@ -51,6 +65,11 @@ export class AuthService {
       return false;
     }
     return this.accessToken() !== null;
+  }
+
+  getValidAccessToken(): string | null {
+    const token = this.accessToken();
+    return token !== null && this.isSessionValid() ? token : null;
   }
 
   generateCodeVerifier(): string {

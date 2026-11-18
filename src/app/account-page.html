@@ -2,8 +2,55 @@
   <a class="brand" routerLink="/">bee market</a>
   <section class="account-card">
     <span class="eyebrow">YOUR ACCOUNT</span>
-    <h1>Welcome back</h1>
-    <p>You’re signed in. Your account and orders will appear here.</p>
+    @switch (accountState().kind) {
+      @case ('loading') {
+        <div class="account-status" role="status" aria-live="polite">
+          <mat-spinner diameter="32" aria-hidden="true" />
+          <span>Loading your account details…</span>
+        </div>
+      }
+      @case ('loaded') {
+        @if (accountState(); as state) {
+          @if (state.kind === 'loaded') {
+            <h1>Welcome back{{ accountName() ? ', ' + accountName() : '' }}</h1>
+            <p>Your account details are up to date.</p>
+            <dl class="account-details">
+              <div>
+                <dt>Username</dt>
+                <dd>{{ state.account.username }}</dd>
+              </div>
+              <div>
+                <dt>Contact number</dt>
+                <dd>{{ state.account.contactNo || 'Not provided' }}</dd>
+              </div>
+              <div>
+                <dt>Account ID</dt>
+                <dd>{{ state.account.id }}</dd>
+              </div>
+            </dl>
+          }
+        }
+      }
+      @case ('not-found') {
+        <div class="account-message" role="status">
+          <h1>Account not found</h1>
+          <p>We couldn’t find account details for this signed-in user.</p>
+        </div>
+      }
+      @case ('error') {
+        @if (accountState(); as state) {
+          @if (state.kind === 'error') {
+            <div class="account-message" role="alert">
+              <h1>Account details unavailable</h1>
+              <p>{{ state.message }}</p>
+              <app-action-button appearance="outlined" (pressed)="retry()">
+                Try again
+              </app-action-button>
+            </div>
+          }
+        }
+      }
+    }
     <div class="account-actions">
       <a matButton="outlined" routerLink="/">Continue shopping</a>
       <app-action-button (pressed)="logout()">Sign out</app-action-button>
