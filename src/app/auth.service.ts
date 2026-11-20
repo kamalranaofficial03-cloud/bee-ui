@@ -12,7 +12,7 @@ export class AuthService {
   private readonly authServer = 'http://localhost:9000';
   private readonly clientId = 'frontend-client';
   private readonly redirectUri = new URL('/callback', window.location.origin).href;
-  private readonly scopes = 'profile';
+  private readonly scopes = '';
   private readonly tokenKeys = [
     'access_token',
     'id_token',
